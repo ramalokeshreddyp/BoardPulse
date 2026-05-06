@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Boards — TaskBoard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="brand-icon">⚡</span>
+      <span class="brand-name">TaskBoard</span>
+    </div>
+    <div class="navbar-actions">
+      <span class="user-pill">{{ request.user.email }}</span>
+      <a href="{% url 'logout' %}" class="btn btn-ghost">Logout</a>
+    </div>
+  </nav>
+
+  <div class="boards-page">
+    <div class="page-hero">
+      <h1 class="page-heading">Your Boards</h1>
+      <p class="page-subtext">Select a board to start collaborating in real-time.</p>
+    </div>
+
+    <div class="boards-grid">
+      {% for board in boards %}
+      <a href="/boards/{{ board.id }}/" class="board-card-link">
+        <div class="board-card-item">
+          <div class="board-card-top">
+            <span class="board-card-icon">📋</span>
+            <span class="board-task-count">{{ board.task_count }} tasks</span>
+          </div>
+          <h2 class="board-card-name">{{ board.name }}</h2>
+          <p class="board-card-owner">by {{ board.owner.email }}</p>
+          <div class="board-card-footer">
+            <span class="board-card-created">{{ board.created_at|date:"M d, Y" }}</span>
+            <span class="open-board-btn">Open →</span>
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <div class="empty-boards">
+        <p>No boards yet. Create one via the API or seed the database.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>

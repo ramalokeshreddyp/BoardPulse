@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ board.name }} — TaskBoard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body>
+  <!-- ─── Navbar ─────────────────────────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="brand-icon">⚡</span>
+      <span class="brand-name">TaskBoard</span>
+    </div>
+    <div class="navbar-center">
+      <h1 class="board-title">{{ board.name }}</h1>
+    </div>
+    <div class="navbar-actions">
+      <div class="ws-status" id="ws-status">
+        <span class="status-dot disconnected" id="status-dot"></span>
+        <span id="status-text">Connecting…</span>
+      </div>
+      <a href="/" class="btn btn-ghost">← Boards</a>
+      <a href="{% url 'logout' %}" class="btn btn-ghost">Logout</a>
+    </div>
+  </nav>
+
+  <!-- ─── Presence Bar ────────────────────────────────────────────────────── -->
+  <div class="presence-bar" id="presence-bar">
+    <span class="presence-label">Online:</span>
+    <div class="presence-avatars" id="presence-avatars">
+      <span class="avatar-badge" title="{{ request.user.email }}">
+        {{ request.user.email|first|upper }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ─── Toast Container ─────────────────────────────────────────────────── -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- ─── Board ───────────────────────────────────────────────────────────── -->
+  <main class="board-layout">
+
+    <!-- To Do -->
+    <div class="column" id="column-todo" data-status="todo"
+         ondragover="onDragOver(event)" ondrop="onDrop(event)">
+      <div class="column-header">
+        <span class="column-dot dot-todo"></span>
+        <h2 class="column-title">To Do</h2>
+        <span class="column-count" id="count-todo">{{ todo_tasks|length }}</span>
+      </div>
+      <div class="column-body" id="body-todo">
+        {% for task in todo_tasks %}
+        <div class="task-card" id="task-{{ task.id }}"
+             draggable="true"
+             ondragstart="onDragStart(event)"
+             data-task-id="{{ task.id }}"
+             data-status="todo">
+          <div class="task-card-header">
+            <span class="task-id">#{{ task.id }}</span>
+            <span class="task-status-badge badge-todo">Todo</span>
+          </div>
+          <p class="task-title">{{ task.title }}</p>
+          {% if task.description %}
+          <p class="task-desc">{{ task.description }}</p>
+          {% endif %}
+          {% if task.assigned_to %}
+          <div class="task-assignee">
+            <span class="assignee-avatar">{{ task.assigned_to.email|first|upper }}</span>
+            <span class="assignee-name">{{ task.assigned_to.email }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="empty-column" id="empty-todo">Drop tasks here</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- In Progress -->
+    <div class="column" id="column-in_progress" data-status="in_progress"
+         ondragover="onDragOver(event)" ondrop="onDrop(event)">
+      <div class="column-header">
+        <span class="column-dot dot-in-progress"></span>
+        <h2 class="column-title">In Progress</h2>
+        <span class="column-count" id="count-in_progress">{{ in_progress_tasks|length }}</span>
+      </div>
+      <div class="column-body" id="body-in_progress">
+        {% for task in in_progress_tasks %}
+        <div class="task-card" id="task-{{ task.id }}"
+             draggable="true"
+             ondragstart="onDragStart(event)"
+             data-task-id="{{ task.id }}"
+             data-status="in_progress">
+          <div class="task-card-header">
+            <span class="task-id">#{{ task.id }}</span>
+            <span class="task-status-badge badge-in-progress">In Progress</span>
+          </div>
+          <p class="task-title">{{ task.title }}</p>
+          {% if task.description %}
+          <p class="task-desc">{{ task.description }}</p>
+          {% endif %}
+          {% if task.assigned_to %}
+          <div class="task-assignee">
+            <span class="assignee-avatar">{{ task.assigned_to.email|first|upper }}</span>
+            <span class="assignee-name">{{ task.assigned_to.email }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="empty-column" id="empty-in_progress">Drop tasks here</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Done -->
+    <div class="column" id="column-done" data-status="done"
+         ondragover="onDragOver(event)" ondrop="onDrop(event)">
+      <div class="column-header">
+        <span class="column-dot dot-done"></span>
+        <h2 class="column-title">Done</h2>
+        <span class="column-count" id="count-done">{{ done_tasks|length }}</span>
+      </div>
+      <div class="column-body" id="body-done">
+        {% for task in done_tasks %}
+        <div class="task-card task-card-done" id="task-{{ task.id }}"
+             draggable="true"
+             ondragstart="onDragStart(event)"
+             data-task-id="{{ task.id }}"
+             data-status="done">
+          <div class="task-card-header">
+            <span class="task-id">#{{ task.id }}</span>
+            <span class="task-status-badge badge-done">Done</span>
+          </div>
+          <p class="task-title">{{ task.title }}</p>
+          {% if task.description %}
+          <p class="task-desc">{{ task.description }}</p>
+          {% endif %}
+          {% if task.assigned_to %}
+          <div class="task-assignee">
+            <span class="assignee-avatar">{{ task.assigned_to.email|first|upper }}</span>
+            <span class="assignee-name">{{ task.assigned_to.email }}</span>
+          </div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="empty-column" id="empty-done">Drop tasks here</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ─── Hidden data for JS ──────────────────────────────────────────────── -->
+  <script id="board-id" type="application/json">{{ board.id }}</script>
+  <script id="current-user" type="application/json">"{{ request.user.email }}"</script>
+
+  <script>
+    // ───────────────────────────────────────────────────────────────────────
+    // Configuration
+    // ───────────────────────────────────────────────────────────────────────
+    const BOARD_ID = JSON.parse(document.getElementById('board-id').textContent);
+    const CURRENT_USER = JSON.parse(document.getElementById('current-user').textContent);
+    const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const WS_URL = `${WS_PROTOCOL}://${window.location.host}/ws/board/${BOARD_ID}/`;
+
+    let ws = null;
+    let draggedTaskId = null;
+    let draggedFromStatus = null;
+    let reconnectAttempts = 0;
+    const MAX_RECONNECT = 5;
+
+    // ───────────────────────────────────────────────────────────────────────
+    // WebSocket Connection
+    // ───────────────────────────────────────────────────────────────────────
+    function connectWebSocket() {
+      ws = new WebSocket(WS_URL);
+
+      ws.onopen = function () {
+        reconnectAttempts = 0;
+        setStatus('connected', 'Live');
+        showToast('🟢 Connected to real-time board', 'success');
+      };
+
+      ws.onclose = function (e) {
+        setStatus('disconnected', 'Disconnected');
+        if (e.code === 4001) {
+          showToast('🔒 Authentication required. Please log in.', 'error');
+          setTimeout(() => { window.location.href = '/login/'; }, 1500);
+          return;
+        }
+        if (reconnectAttempts < MAX_RECONNECT) {
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 16000);
+          reconnectAttempts++;
+          showToast(`⚡ Reconnecting in ${delay / 1000}s… (attempt ${reconnectAttempts})`, 'warning');
+          setTimeout(connectWebSocket, delay);
+        } else {
+          showToast('❌ Connection lost. Please refresh the page.', 'error');
+        }
+      };
+
+      ws.onerror = function () {
+        setStatus('error', 'Error');
+      };
+
+      ws.onmessage = function (e) {
+        try {
+          const data = JSON.parse(e.data);
+          handleMessage(data);
+        } catch (err) {
+          console.error('Failed to parse WS message:', err);
+        }
+      };
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Message Handling
+    // ───────────────────────────────────────────────────────────────────────
+    function handleMessage(data) {
+      switch (data.type) {
+        case 'task.moved':
+          handleTaskMoved(data);
+          break;
+        case 'presence':
+          handlePresence(data.payload);
+          break;
+        case 'pong':
+          // latency measurement handled in benchmark script
+          break;
+        case 'error':
+          showToast(`⚠️ ${data.message}`, 'error');
+          break;
+      }
+    }
+
+    function handleTaskMoved(data) {
+      const { task_id, new_status, moved_by } = data;
+      const taskEl = document.getElementById(`task-${task_id}`);
+      const targetBody = document.getElementById(`body-${new_status}`);
+
+      if (!taskEl || !targetBody) return;
+
+      // Remove empty placeholder if present
+      const emptyPlaceholder = document.getElementById(`empty-${new_status}`);
+      if (emptyPlaceholder) emptyPlaceholder.remove();
+
+      // Update task card appearance
+      const oldStatus = taskEl.dataset.status;
+      taskEl.dataset.status = new_status;
+      updateCardBadge(taskEl, new_status);
+
+      // Move card to new column
+      targetBody.appendChild(taskEl);
+
+      // Update counts
+      updateColumnCount(oldStatus);
+      updateColumnCount(new_status);
+
+      // Add empty placeholder to source column if empty
+      const srcBody = document.getElementById(`body-${oldStatus}`);
+      if (srcBody && srcBody.querySelectorAll('.task-card').length === 0) {
+        const ph = document.createElement('div');
+        ph.className = 'empty-column';
+        ph.id = `empty-${oldStatus}`;
+        ph.textContent = 'Drop tasks here';
+        srcBody.appendChild(ph);
+      }
+
+      // Flash the card
+      taskEl.classList.add('task-moved');
+      setTimeout(() => taskEl.classList.remove('task-moved'), 800);
+
+      // Toast notification (only for other users)
+      if (moved_by !== CURRENT_USER) {
+        const statusLabel = { todo: 'To Do', in_progress: 'In Progress', done: 'Done' }[new_status] || new_status;
+        showToast(`🔄 ${moved_by} moved task #${task_id} → ${statusLabel}`, 'info');
+      }
+    }
+
+    function updateCardBadge(taskEl, status) {
+      const badge = taskEl.querySelector('.task-status-badge');
+      if (!badge) return;
+      badge.className = 'task-status-badge';
+      const labels = { todo: ['badge-todo', 'Todo'], in_progress: ['badge-in-progress', 'In Progress'], done: ['badge-done', 'Done'] };
+      const [cls, text] = labels[status] || ['badge-todo', status];
+      badge.classList.add(cls);
+      badge.textContent = text;
+
+      taskEl.classList.toggle('task-card-done', status === 'done');
+    }
+
+    function updateColumnCount(status) {
+      const body = document.getElementById(`body-${status}`);
+      const countEl = document.getElementById(`count-${status}`);
+      if (!body || !countEl) return;
+      countEl.textContent = body.querySelectorAll('.task-card').length;
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Presence
+    // ───────────────────────────────────────────────────────────────────────
+    function handlePresence(payload) {
+      const { action, user, online_users } = payload;
+      renderPresenceAvatars(online_users);
+
+      if (user !== CURRENT_USER) {
+        const verb = action === 'join' ? '👋 joined' : '👋 left';
+        showToast(`${verb}: ${user}`, 'info');
+      }
+    }
+
+    function renderPresenceAvatars(users) {
+      const container = document.getElementById('presence-avatars');
+      container.innerHTML = '';
+      users.forEach(email => {
+        const badge = document.createElement('span');
+        badge.className = 'avatar-badge';
+        if (email === CURRENT_USER) badge.classList.add('avatar-self');
+        badge.title = email;
+        badge.textContent = email[0].toUpperCase();
+        container.appendChild(badge);
+      });
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Drag & Drop
+    // ───────────────────────────────────────────────────────────────────────
+    function onDragStart(event) {
+      const card = event.currentTarget;
+      draggedTaskId = card.dataset.taskId;
+      draggedFromStatus = card.dataset.status;
+      event.dataTransfer.setData('text/plain', draggedTaskId);
+      event.dataTransfer.effectAllowed = 'move';
+      card.classList.add('dragging');
+      setTimeout(() => card.classList.add('drag-ghost'), 0);
+    }
+
+    function onDragOver(event) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      event.currentTarget.classList.add('drop-target');
+    }
+
+    function onDrop(event) {
+      event.preventDefault();
+      const column = event.currentTarget;
+      column.classList.remove('drop-target');
+
+      const taskId = event.dataTransfer.getData('text/plain');
+      const newStatus = column.dataset.status;
+
+      // Clear dragging state
+      const card = document.getElementById(`task-${taskId}`);
+      if (card) {
+        card.classList.remove('dragging', 'drag-ghost');
+      }
+
+      // Don't send if dropped in same column
+      if (newStatus === draggedFromStatus) return;
+
+      // Send move message over WebSocket
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          action: 'move_task',
+          task_id: parseInt(taskId),
+          new_status: newStatus,
+        }));
+      } else {
+        showToast('⚠️ Not connected. Please wait…', 'warning');
+      }
+    }
+
+    // Clean up drag styles when drag ends (even if not dropped on target)
+    document.addEventListener('dragend', function (e) {
+      document.querySelectorAll('.task-card').forEach(c => {
+        c.classList.remove('dragging', 'drag-ghost');
+      });
+      document.querySelectorAll('.column').forEach(c => {
+        c.classList.remove('drop-target');
+      });
+    });
+
+    // ───────────────────────────────────────────────────────────────────────
+    // UI Utilities
+    // ───────────────────────────────────────────────────────────────────────
+    function setStatus(state, text) {
+      const dot = document.getElementById('status-dot');
+      const label = document.getElementById('status-text');
+      dot.className = `status-dot ${state}`;
+      label.textContent = text;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      // Trigger animation
+      requestAnimationFrame(() => toast.classList.add('toast-show'));
+      setTimeout(() => {
+        toast.classList.remove('toast-show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Init
+    // ───────────────────────────────────────────────────────────────────────
+    connectWebSocket();
+  </script>
+</body>
+</html>

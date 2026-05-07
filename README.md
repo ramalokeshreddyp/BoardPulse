@@ -294,21 +294,9 @@ Open **http://localhost:8000** — login, open a second tab, and drag cards to s
 
 ---
 
-## 🌐 GitHub Pages
+# Note on Hosting
 
-This repository includes a static project site in `docs/` and a workflow at `.github/workflows/deploy-pages.yml`.
-
-Once pushed to `main`, GitHub Actions deploys the static site to GitHub Pages automatically.
-
-Expected URL:
-
-`https://ramalokeshreddyp.github.io/BoardPulse/`
-
-### Important
-
-GitHub Pages only serves static files. It cannot run the Django + Redis + PostgreSQL backend.
-Use GitHub Pages for portfolio/project documentation, and deploy the real app on a container-capable host.
-
+This repository includes a static `docs/` folder previously used for a GitHub Pages site. The production realtime application requires a backend (Django, Redis, PostgreSQL) and must be deployed to a container host or managed platform (Render, Fly.io, Railway, DigitalOcean, etc.).
 ---
 
 ## ⚙️ Setup & Installation

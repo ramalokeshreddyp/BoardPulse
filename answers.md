@@ -56,4 +56,4 @@ Date: 2026-05-07
 
 ---
 
-If you want, I can also add a short `tests/` scaffold demonstrating `WebsocketCommunicator` usage.
+

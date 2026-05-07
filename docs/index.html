@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BoardPulse | Real-Time Collaborative Task Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <header class="hero">
+    <p class="kicker">Django Channels + Redis + PostgreSQL</p>
+    <h1>BoardPulse</h1>
+    <p class="subtitle">A real-time collaborative task board where task updates and presence sync instantly across connected users.</p>
+    <div class="actions">
+      <a href="https://github.com/ramalokeshreddyp/BoardPulse" target="_blank" rel="noopener noreferrer" class="btn btn-primary">View Repository</a>
+      <a href="https://github.com/ramalokeshreddyp/BoardPulse#readme" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Read Documentation</a>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <h2>What It Does</h2>
+      <ul>
+        <li>Authenticated WebSocket collaboration per board</li>
+        <li>Live task move broadcasts to all connected clients</li>
+        <li>Presence tracking with join and leave events</li>
+        <li>REST APIs for boards and tasks with auth protection</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Architecture</h2>
+      <ul>
+        <li>ASGI with Django Channels consumers</li>
+        <li>Redis channel layer for group fan-out</li>
+        <li>PostgreSQL for persistent task and board state</li>
+        <li>Docker Compose orchestration with health checks</li>
+      </ul>
+    </section>
+
+    <section class="card full">
+      <h2>Deployment Note</h2>
+      <p>
+        GitHub Pages hosts this static project page only. The full live application needs a backend runtime
+        for Django, Redis, and PostgreSQL. Use a cloud VM or a container host to run Docker Compose,
+        then point users to that app URL.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>BoardPulse • Real-time collaboration project</p>
+  </footer>
+</body>
+</html>

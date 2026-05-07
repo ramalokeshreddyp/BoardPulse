@@ -32,10 +32,10 @@ def _presence_key(board_id: str) -> str:
 # Sync DB helpers (wrapped with database_sync_to_async at call sites)
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _update_task_status(task_id: int, new_status: str) -> dict:
+def _update_task_status(task_id: int, new_status: str, board_id: int) -> dict:
     """Update task status in DB and return the updated task data."""
     from .models import Task  # local import to avoid AppRegistry issues
-    task = Task.objects.select_related('board', 'assigned_to').get(id=task_id)
+    task = Task.objects.select_related('board', 'assigned_to').get(id=task_id, board_id=board_id)
     task.status = new_status
     task.save(update_fields=['status', 'updated_at'])
     return {
@@ -200,7 +200,7 @@ class BoardConsumer(AsyncWebsocketConsumer):
 
         try:
             task_data = await database_sync_to_async(_update_task_status)(
-                int(task_id), new_status
+                int(task_id), new_status, int(self.board_id)
             )
         except Exception as exc:
             logger.error('Failed to update task %s: %s', task_id, exc)

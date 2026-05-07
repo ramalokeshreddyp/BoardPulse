@@ -509,8 +509,8 @@ python scripts/benchmark.py --clients 10 --board-id 1
 # 50 clients, 30 seconds, custom URL
 python scripts/benchmark.py --clients 50 --board-id 1 --duration 30 --url http://localhost:8000
 
-# Ping/pong latency mode
-python scripts/benchmark.py --clients 20 --board-id 1 --ping
+# Custom send interval (0.5s per client)
+python scripts/benchmark.py --clients 20 --board-id 1 --duration 20 --interval 0.5
 ```
 
 ### All Options
@@ -521,33 +521,31 @@ python scripts/benchmark.py --clients 20 --board-id 1 --ping
 | `--board-id` | `1` | Board to connect to |
 | `--clients` | `10` | Concurrent WebSocket clients |
 | `--duration` | `10` | Test duration per client (seconds) |
-| `--username` | `user1` | Auth username |
+| `--interval` | `1.0` | Send interval per client (seconds) |
+| `--username` | `user1@example.com` | Auth username or email |
 | `--password` | `password123` | Auth password |
-| `--ping` | off | Use ping/pong instead of task moves |
 
 ### Sample Output
 
 ```
 ════════════════════════════════════════════════════════════
-  📊 BENCHMARK RESULTS
-════════════════════════════════════════════════════════════
-  Board ID     : 1
-  Clients      : 10
-  Duration     : 10s
-  Total time   : 12.43s
-────────────────────────────────────────────────────────────
-  Connected    : 10/10 (100%)
-  Messages sent: 100
-  Messages recv: 950
-────────────────────────────────────────────────────────────
-  Latency (round-trip broadcast)
-    Mean  :  4.21 ms
-    Median:  3.87 ms
-    P95   :  9.14 ms
-    P99   : 15.32 ms
-    Min   :  1.23 ms
-    Max   : 28.45 ms
-════════════════════════════════════════════════════════════
+TaskBoard WebSocket Benchmark Results
+================================================================
+Board ID              : 1
+Concurrent clients    : 10
+Duration              : 10s
+Send interval         : 1.00s
+Elapsed               : 12.43s
+Connection success    : 10/10 (100.0%)
+Messages sent         : 100
+Messages received     : 950
+Broadcast latency (move_task -> task.moved):
+  Average             : 4.21 ms
+  Median              : 3.87 ms
+  P95                 : 9.14 ms
+  P99                 : 15.32 ms
+  Max                 : 28.45 ms
+  Samples             : 100
 ```
 
 ### The Blocking Experiment
